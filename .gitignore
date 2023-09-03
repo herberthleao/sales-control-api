@@ -4,7 +4,7 @@
 /public/hot
 /public/storage
 /storage/*.key
-/storage/volumes/mariadb
+/docker/mariadb
 /vendor
 .env
 .env.backup
