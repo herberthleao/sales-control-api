@@ -1,0 +1,30 @@
+version: "3"
+services:
+    mariadb:
+        container_name: sales-mariadb
+        image: mariadb:10.9.4
+        command: --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_USER: ${DB_USERNAME:-admin}
+            MYSQL_PASSWORD: ${DB_PASSWORD:-admin}
+            MYSQL_DATABASE: ${DB_DATABASE:-sales_control}
+        tty: true
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./docker/mariadb:/var/lib/mysql
+    nginx:
+        container_name: sales-nginx
+        image: nginx:mainline-alpine3.18-slim
+        ports:
+            - "8080:80"
+        volumes:
+            - ./docker/nginx:/etc/nginx/conf.d
+            - .:/var/www
+    app:
+        container_name: sales-app
+        build: .
+        working_dir: /var/www
+        volumes:
+            - .:/var/www
