@@ -1,66 +1,331 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sales Control API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+O projeto consiste em uma API de controle de vendas, com diferentes unidades, diretorias e gerenciamento de acesso.
+Além disto, o sistema também faz o controle de geolocalização das vendas e suas respectivas unidades.
 
-## About Laravel
+## Pré-requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* Docker >= 24.0.5
+* Docker Compose >= 2.20.2
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalação
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Antes de tudo, é necessário instalar o [Docker Desktop](https://docker.com) em sua máquina.
 
-## Learning Laravel
+Após a instalação do Docker, clone este repositório:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```shell
+git clone https://github.com/herberthleao/sales-control-api.git
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Acesse o diretório do repositório:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```shell
+cd sales-control-api
+```
 
-## Laravel Sponsors
+Execute os contêineres, usando o Docker Compose:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```shell
+docker compose up -d
+```
 
-### Premium Partners
+Acesse o contêiner do projeto, usando o Docker:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```shell
+docker exec -it sales-app sh
+```
 
-## Contributing
+Dentro do contêiner, instale as dependências do projeto:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```shell
+composer install
+```
 
-## Code of Conduct
+Copie o arquivo `.env` padrão para definir as configurações da aplicação:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```shell
+cp .env.example .env
+```
 
-## Security Vulnerabilities
+Gere uma nova chave exclusiva para o Laravel, que será armazenada no `.env`:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```shell
+php artisan key:generate
+```
 
-## License
+Por fim, migre as tabelas do banco de dados e popule-as:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```shell
+php artisan migrate --seed
+```
+
+## Uso
+
+> O endereço base para as requisições é: `http://localhost:8080/api`.
+
+> A comunicação com a API ocorre exclusivamente por meio de JSON.
+
+### Endpoints
+
+#### Autenticação
+
+| **Método** | **Rota**     | **Descrição**                 |
+|------------|--------------|-------------------------------|
+| POST       | /auth/tokens | Emite um novo token de acesso |
+
+Exemplo de corpo desta requisição:
+
+```json
+{
+  "email": "john@doe.test",
+  "password": "123mudar"
+}
+```
+
+Exemplo de resposta desta requisição:
+
+```json
+{
+    "access_token": "13|laravel_sanctum_W9ggG2QDzB71zO4gO7D7FJmbITst9wF132vbENOgcc70083a",
+    "token_type": "Bearer"
+}
+```
+
+---
+
+#### Diretorias
+
+| **Método** | **Rota**   | **Descrição**         |
+|------------|------------|-----------------------|
+| GET        | /divisions | Resgata as diretorias |
+
+> Esta rota exige autenticação.
+
+Exemplo de resposta desta requisição:
+
+```json
+{
+    "data": {
+        "id": 3,
+        "name": "Centro-oeste",
+        "director_id": 4,
+        "created_at": "2023-09-04T22:44:42.000000Z",
+        "updated_at": "2023-09-04T22:44:42.000000Z"
+    }
+}
+```
+
+---
+
+#### Unidades
+
+| **Método** | **Rota**              | **Descrição**                |
+|------------|-----------------------|------------------------------|
+| GET        | /divisions/{id}/units | Resgata as unidades de venda |
+
+> Esta rota exige autenticação.
+
+Exemplo de resposta desta requisição:
+
+```json
+{
+    "data": [
+        {
+            "id": 8,
+            "name": "Campo Grande",
+            "latitude": "-20.46265201",
+            "longitude": "-54.61565894",
+            "manager_id": 12,
+            "division_id": 3,
+            "created_at": "2023-09-04T22:44:42.000000Z",
+            "updated_at": "2023-09-04T22:44:42.000000Z"
+        }
+    ],
+    "total": 1
+}
+```
+
+---
+
+#### Vendedores
+
+| **Método** | **Rota**                                       | **Descrição**         |
+|------------|------------------------------------------------|-----------------------|
+| GET        | /divisions/{divisionID}/units/{unitID}/sellers | Resgata os vendedores |
+
+> Esta rota exige autenticação.
+
+Exemplo de resposta desta requisição:
+
+```json
+{
+    "data": [
+        {
+            "id": 20,
+            "name": "Breno",
+            "email": "breno@magazineaziul.com.br",
+            "email_verified_at": null,
+            "role": "SELLER",
+            "unit_id": 8,
+            "created_at": "2023-09-04T22:44:41.000000Z",
+            "updated_at": "2023-09-04T22:44:41.000000Z"
+        }
+    ],
+    "total": 1
+}
+```
+
+---
+
+#### Vendas
+
+##### Criação de Vendas
+
+| **Método** | **Rota** | **Descrição**           |
+|------------|----------|-------------------------|
+| POST       | /sales   | Registra uma nova venda |
+
+> Esta rota exige autenticação.
+
+Exemplo de corpo desta requisição:
+
+```json
+{
+    "date": "2023-01-02 12:31:03",
+    "value": "10.00",
+    "latitude": -20.46265201,
+    "longitude": -54.61565894
+}
+```
+
+Exemplo de resposta desta requisição:
+
+```json
+{
+    "data": {
+        "date": "2023-01-02 12:31:03",
+        "value": "10.00",
+        "latitude": -20.46265201,
+        "longitude": -54.61565894,
+        "unit_id": 8,
+        "seller_id": 21,
+        "updated_at": "2023-09-05T04:55:24.000000Z",
+        "created_at": "2023-09-05T04:55:24.000000Z",
+        "id": 3
+    }
+}
+```
+
+##### Leitura de Vendas
+
+| **Método** | **Rota** | **Descrição**     |
+|------------|----------|-------------------|
+| GET        | /sales   | Resgata as vendas |
+
+> Esta rota exige autenticação.
+
+Este _endpoint_ possui alguns filtros opcionais que podem ser passados como _query string_:
+
+- `from`: a data inicial de criação;
+- `to`: a data final de criação;
+- `division`: o ID da diretoria;
+- `unit`: o ID da unidade;
+- `seller`: o ID do vendedor.
+
+Exemplo de requisição filtrada:
+
+```http
+GET /sales?from=2023-01-01&to=2023-09-05&division=3&unit=8&seller=21
+```
+
+Exemplo de resposta:
+
+```json
+{
+    "data": [
+        {
+            "id": 1,
+            "date": "2023-01-02 12:31:02",
+            "value": "10.00",
+            "latitude": "-20.46265201",
+            "longitude": "-54.61565894",
+            "seller_id": 21,
+            "unit_id": 8,
+            "roaming_unit_id": null,
+            "created_at": "2023-09-05T04:55:04.000000Z",
+            "updated_at": "2023-09-05T04:55:04.000000Z"
+        }
+    ],
+    "total": 1
+}
+```
+
+##### Leitura de Vendas por ID
+
+| **Método** | **Rota**    | **Descrição**     |
+|------------|-------------|-------------------|
+| GET        | /sales/{id} | Resgata uma venda |
+
+> Esta rota exige autenticação.
+
+Exemplo de resposta:
+
+```json
+{
+    "data": {
+        "id": 4,
+        "date": "2023-01-02 12:31:03",
+        "value": "10.00",
+        "latitude": "-16.67312624",
+        "longitude": "-49.25248826",
+        "seller_id": 21,
+        "unit_id": 8,
+        "roaming_unit_id": 9,
+        "created_at": "2023-09-05T05:13:26.000000Z",
+        "updated_at": "2023-09-05T05:13:26.000000Z",
+        "unit": {
+            "id": 8,
+            "name": "Campo Grande",
+            "latitude": "-20.46265201",
+            "longitude": "-54.61565894",
+            "manager_id": 12,
+            "division_id": 3,
+            "created_at": "2023-09-05T04:54:46.000000Z",
+            "updated_at": "2023-09-05T04:54:46.000000Z"
+        },
+        "seller": {
+            "id": 21,
+            "name": "Emanuel",
+            "email": "emanuel@magazineaziul.com.br",
+            "email_verified_at": null,
+            "role": "SELLER",
+            "unit_id": 8,
+            "created_at": "2023-09-05T04:54:46.000000Z",
+            "updated_at": "2023-09-05T04:54:46.000000Z"
+        },
+        "roaming_unit": {
+            "id": 9,
+            "name": "Goiânia",
+            "latitude": "-16.67312624",
+            "longitude": "-49.25248826",
+            "manager_id": 13,
+            "division_id": 3,
+            "created_at": "2023-09-05T04:54:46.000000Z",
+            "updated_at": "2023-09-05T04:54:46.000000Z"
+        }
+    }
+}
+```
+
+## Teste
+
+Para realizar os testes, execute:
+
+```shell
+php artisan test
+```
+
+## Licença
+
+Este projeto é de código aberto e está licenciado sob a [Licença MIT](LICENSE.md).
