@@ -87,8 +87,10 @@ Exemplo de resposta desta requisição:
 
 ```json
 {
-    "access_token": "13|laravel_sanctum_W9ggG2QDzB71zO4gO7D7FJmbITst9wF132vbENOgcc70083a",
-    "token_type": "Bearer"
+    "data": {
+        "access_token": "8|dln7JJWmYNpLwz3k9BRzaQwGamORaNA5BipXGv1s8876b4bb",
+        "token_type": "Bearer"
+    }
 }
 ```
 
