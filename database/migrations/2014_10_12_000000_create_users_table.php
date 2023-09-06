@@ -17,6 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('role', [
+                'GENERAL_DIRECTOR',
+                'DIRECTOR',
+                'MANAGER',
+                'SELLER'
+            ]);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -27,6 +33,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('users');
     }
 };
