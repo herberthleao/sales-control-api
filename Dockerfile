@@ -5,6 +5,7 @@ RUN apk update && apk upgrade
 
 # Instala os pacotes de dependência das extensões do PHP
 RUN apk add --no-cache \
+    unzip \
     libzip-dev \
     icu-dev \
     g++
